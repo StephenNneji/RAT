@@ -104,8 +104,10 @@ problem.addContrast('name',         'SMW',...
 
 % Make a controls class....
 controls = controlsClass();
-
+controls.procedure = 'dream';
 % Send everything to RAT....
 [problem,results] = RAT(problem,controls);
-
-plotRefSLD(problem,results);
+tic
+cornerPlot(results, 'smooth', true);
+toc
+%plotRefSLD(problem,results);
