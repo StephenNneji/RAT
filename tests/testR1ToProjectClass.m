@@ -30,6 +30,16 @@ classdef testR1ToProjectClass < matlab.unittest.TestCase
             result = r1ToProjectClass(testCase.input);
             testCase.verifyEqual(result, expected);
         end
+        
+        function testR1WithNonUniqueContrast(testCase)
+            r1Problem = load('nonUniqueContrast.mat').problem;
+            testCase.verifyEqual(char(r1Problem.contrastNames{1}), 'D2O');
+            testCase.verifyEqual(char(r1Problem.contrastNames{2}), 'D2O');
+            problem = r1ToProjectClass('nonUniqueContrast.mat');
+            testCase.verifyEqual(problem.contrasts.contrasts{1}.name, 'Contrast 1');
+            testCase.verifyEqual(problem.contrasts.contrasts{2}.name, 'Contrast 2');
+        end
+
 
         function testR1ConversionWithModification(testCase)
             problem = load(testCase.input).problem;
@@ -82,7 +92,7 @@ classdef testR1ToProjectClass < matlab.unittest.TestCase
         end
 
         function testBadConstrs(testCase)
-            project = testCase.verifyWarning(@() r1ToProjectClass('double_bilayer_volume_model.mat'), "");
+            project = testCase.verifyWarning(@() r1ToProjectClass('doubleBilayerVolumeModel.mat'), "");
             % this example project has background min bigger than
             % background value
             testCase.verifyEqual(project.background.backgroundParams.varTable{1,2}, ...
@@ -90,7 +100,3 @@ classdef testR1ToProjectClass < matlab.unittest.TestCase
         end
         end
 end
-
-
-
-

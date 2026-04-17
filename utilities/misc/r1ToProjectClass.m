@@ -189,10 +189,17 @@ for i = 1:length(dataFiles)
         'dataRange', problem.dataLimits{i} , ...
         'simRange', problem.simLimits{i});
 end
+contrastNames = cellfun(@char, problem.contrastNames, UniformOutput=false);
+notUnique = length(unique(contrastNames)) ~= length(contrastNames);
 
 % Create contrasts
 for i = 1:problem.numberOfContrasts
-    thisName = char(problem.contrastNames{i});
+    if notUnique
+        % replace contrast names if non-unique.
+        thisName = sprintf('Contrast %d', i);
+    else
+        thisName = char(problem.contrastNames{i});
+    end
     thisBackgroundNumber = problem.contrastBacks(i);
     thisBackground = char(project.background.backgrounds.varTable{thisBackgroundNumber,1});
 
