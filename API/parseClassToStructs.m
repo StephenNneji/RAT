@@ -290,6 +290,9 @@ else
     problemStruct.checks.domainRatios = ones(1,0);
 end
 
+if ~strcmpi(inputControls.procedure, procedures.Calculate.value)
+    problemStruct = checkRange(problemStruct, limits);
+end
 % Make sure the indices cannot lie outside of the arrays
 checkIndices(problemStruct, inputStruct.files);
 
