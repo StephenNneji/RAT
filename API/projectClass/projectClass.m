@@ -1322,11 +1322,14 @@ classdef projectClass < handle & projectParametersMixin & matlab.mixin.CustomDis
             %     The name to use for the project object in the script. 
             % path : string or char array, default: 'projectScript.m'
             %     The relative or absolute file path where the script should be written to.
+            % precision : whole number, default: 4 
+            %     The number of significant figures written into the script.
 
             arguments
                 obj
                 options.objName {mustBeTextScalar} = 'project'
                 options.path {mustBeTextScalar} = 'projectScript.m'
+                options.precision (1,1) {mustBeInteger} = 4
             end
 
             % Need to ensure correct format for script name
@@ -1343,7 +1346,7 @@ classdef projectClass < handle & projectParametersMixin & matlab.mixin.CustomDis
                 throw(exceptions.invalidValue(sprintf('The filename chosen for the script has the "%s" extension, rather than a MATLAB ".m" extension', extension)));
             end
 
-            script = obj.toScript(objName=options.objName);
+            script = obj.toScript(objName=options.objName, precision=options.precision);
             fileID = fopen(options.path, 'w');
             fprintf(fileID, '%s\n', script);
             fclose(fileID);
@@ -1506,11 +1509,13 @@ classdef projectClass < handle & projectParametersMixin & matlab.mixin.CustomDis
             %     Keyword/value pair to properties to update for the specific parameter.
             %       * objName (string or char array, default: 'project') the name to use for the project object in the script. 
             %       * exportData (logical, default: true) indicates if the data should be exported to file otherwise the data is written into the script.
+            %       * precision (whole number, default: 15) the number of significant figures written into the script.
 
             arguments
                 obj
                 options.objName {mustBeTextScalar} = 'project'
                 options.exportData {mustBeA(options.exportData, 'logical')} = true
+                options.precision (1,1) {mustBeInteger} = 15
             end
             script = "";
             script = script + sprintf("%s\n\n", '% THIS FILE IS GENERATED FROM RAT VIA THE "WRITESCRIPT" ROUTINE. IT IS NOT PART OF THE RAT CODE.');
@@ -1529,7 +1534,8 @@ classdef projectClass < handle & projectParametersMixin & matlab.mixin.CustomDis
             for i=1:height(obj.parameters.varTable)
                 % Set protected parameters
                 if any(strcmpi(obj.parameters.varTable{i, 1}, obj.protectedParameters))
-                    script = script + sprintf(options.objName + ".setParameter(%d, 'min', %.15g, 'value', %.15g, 'max', %.15g, 'fit', %s, 'priorType', '%s', 'mu', %.15g, 'sigma', %.15g);\n", ...
+                    paramSpec = sprintf(".setParameter(%%d, 'min', %%.%1$dg, 'value', %%.%1$dg, 'max', %%.%1$dg, 'fit', %%s, 'priorType', '%%s', 'mu', %%.%1$dg, 'sigma', %%.%1$dg);\n", options.precision);
+                    script = script + sprintf(options.objName + paramSpec, ...
                                               i, obj.parameters.varTable{i, 2}, obj.parameters.varTable{i, 3}, obj.parameters.varTable{i, 4}, string(obj.parameters.varTable{i, 5}), ...
                                               obj.parameters.varTable{i, 6}, obj.parameters.varTable{i, 7}, obj.parameters.varTable{i, 8});
                 % Add non-protected parameters to a parameter group
@@ -1547,7 +1553,7 @@ classdef projectClass < handle & projectParametersMixin & matlab.mixin.CustomDis
             if size(paramGroup, 1) > 0
                 script = script + sprintf("paramGroup = {\n");
                 for i = 1:size(paramGroup, 1)
-                    paramSpec = blanks(14) + "{'%s', %.15g, %.15g, %.15g, %s, '%s', %.15g, %.15g};\n";
+                    paramSpec = blanks(14) + sprintf("{'%%s', %%.%1$dg, %%.%1$dg, %%.%1$dg, %%s, '%%s', %%.%1$dg, %%.%1$dg};\n", options.precision);
                     script = script + sprintf(paramSpec, paramGroup{i}{:});
                 end
                 script = script + sprintf(blanks(14) + "%s\n\n", "};");
@@ -1590,7 +1596,7 @@ classdef projectClass < handle & projectParametersMixin & matlab.mixin.CustomDis
                     paramTable{5, j} = string(paramTable{5, j});
                 end
                 % Add the parameters that have been defined
-                paramSpec = options.objName + "." + addRoutine + "('%s', %.15g, %.15g, %.15g, %s, '%s', %.15g, %.15g);\n";
+                paramSpec = options.objName + "." + addRoutine + sprintf("('%%s', %%.%1$dg, %%.%1$dg, %%.%1$dg, %%s, '%%s', %%.%1$dg, %%.%1$dg);\n", options.precision);
                 script = script + sprintf(paramSpec, paramTable{:});
                 script = script + newline;
 
@@ -1626,7 +1632,7 @@ classdef projectClass < handle & projectParametersMixin & matlab.mixin.CustomDis
                         script = script + sprintf("data_%d = readmatrix('%s');\n", i, "data_" + string(i) + ".dat");
                         script = script + sprintf(options.objName + ".addData('%s', data_%d);\n", obj.data.varTable{i, 1}, i);
                     else
-                        script = script + sprintf("data_%d = %s;\n", i, mat2str(obj.data.varTable{i, 2}{:}, 15));
+                        script = script + sprintf("data_%d = %s;\n", i, mat2str(obj.data.varTable{i, 2}{:}, options.precision));
                         script = script + sprintf(options.objName + ".addData('%s', data_%d);\n", obj.data.varTable{i, 1}, i);
                     end
                 end
@@ -1634,10 +1640,10 @@ classdef projectClass < handle & projectParametersMixin & matlab.mixin.CustomDis
                 % Also need to set dataRange and simRange explicitly as they
                 % are optional
                 if ~isempty(obj.data.varTable{i, 3}{:})
-                    script = script + sprintf(options.objName + ".setData(%d, 'dataRange', [%.15g %.15g]);\n", i, obj.data.varTable{i, 3}{:});
+                    script = script + sprintf(options.objName + sprintf(".setData(%%d, 'dataRange', [%%.%1$dg %%.%1$dg]);\n", options.precision), i, obj.data.varTable{i, 3}{:});
                 end
                 if ~isempty(obj.data.varTable{i, 4}{:})
-                    script = script + sprintf(options.objName + ".setData(%d, 'simRange', [%.15g %.15g]);\n", i, obj.data.varTable{i, 4}{:});
+                    script = script + sprintf(options.objName + sprintf(".setData(%%d, 'simRange', [%%.%1$dg %%.%1$dg]);\n", options.precision), i, obj.data.varTable{i, 4}{:});
                 end
 
                 script = script + newline;
