@@ -1,54 +1,75 @@
-function SLDProfile = makeSLDProfile(bulkIn,bulkOut,layers,ssub,nrepeats)
+function SLD = makeSLDProfile(bulkIn,bulkOut,layers,lastRough,nRepeats)
 
-numberOfLayers = size(layers,1);
+% Scale the SLDs...
+layers(:,2) = layers(:,2) * 1e6;
+bulkIn = bulkIn * 1e6;
+bulkOut = bulkOut * 1e6;
 
-if numberOfLayers>0
+% Define cdf...
+cdf = @(x,mu,r) 0.5*(erf((x-mu)/(sqrt(2)*r)) + 1);
+
+if size(layers,1) > 0
+    % Make a z range for the profile...
+    % Find the maximum thickness, including any long roughness tail on final layer...
     totalThickness = sum(layers(:,1));
-    totalRange = (totalThickness*nrepeats) + 150;
-    x = 0:totalRange;
-    Lays = zeros(length(x),(numberOfLayers*nrepeats)+2);
-    boxCen = 0;
-    boxWidth = 100;
 
-    roughnessValues = layers(:,3)';
-    roughnessValues(end+1) = ssub;
+    % Find the point which covers 99% of the outer error function..
+    % We need to make sure the total SLD range includes this...
+    outerLayerTailExtension = (erfcinv(0.01) * sqrt(2) * layers(end,3));
+    totalRange = ((totalThickness + outerLayerTailExtension) * nRepeats);
 
-    nextLayerRoughness = roughnessValues(1);
-    airBox = asymconvstep(x,boxWidth,boxCen,nextLayerRoughness,nextLayerRoughness,bulkIn);
-    lastBoxEdge = boxCen + (0.5 * boxWidth);
+    % Add some extra range at the end for bulk_out...
+    totalRange = totalRange + 100;
+    z = 0:totalRange;
 
-    for n = 1:nrepeats
-        for i = 1:numberOfLayers
-            layerThickness = layers(i,1);
-            layerSLD = layers(i,2);
-            layerRoughness = roughnessValues(i);
-            nextLayerRoughness = roughnessValues(i+1);
-            thisBoxCentre = lastBoxEdge + (0.5 * layerThickness);
-            thisBox = asymconvstep(x,layerThickness,thisBoxCentre,layerRoughness,nextLayerRoughness,layerSLD);
-            Lays(:,i+(numberOfLayers*(n-1))) = thisBox;
-            lastBoxEdge = thisBoxCentre + (0.5 * layerThickness);
+    % Repeat the stack according to 'nRepeats'...
+    layers = repmat(layers,nRepeats,1);
+
+    % Add an aditional 'layer' for the transition to bulk out...
+    outLayer  = [0 bulkOut lastRough];
+    layers = [layers; outLayer];
+
+    % Pre-definitions....
+    nLayers = size(layers,1);
+    allFuncs = zeros(length(z),nLayers);
+    alpha = zeros(1,nLayers);
+    lastLayerSLD = bulkIn;
+    thisPos = 50;
+
+    % Make the profile by adding an error function for each interface
+    % (we use 'cdf' because it scales more easily than 'erf'...)
+    for i = 1:nLayers
+        nextRough = layers(i,3);
+        nextLayerSLD = layers(i,2);
+        diff = nextLayerSLD - lastLayerSLD;
+
+        thisFun = cdf(z,thisPos,nextRough);
+        if diff < 0
+            thisFun = -thisFun;
         end
-    end
 
-    layerRoughness = nextLayerRoughness;
-    layerThickness = (x(end)-lastBoxEdge)*2;
-    layerSLD = bulkOut;
-    nextLayerRoughness = ssub;
-    thisBoxCentre = x(end);
-    Lays(:,(numberOfLayers*nrepeats)+1) = asymconvstep(x,layerThickness,thisBoxCentre,layerRoughness,nextLayerRoughness,layerSLD);
-    
-    Lays(:,(numberOfLayers*nrepeats)+2) = airBox;
-    SLD = sum(Lays,2);
+        allFuncs(:,i) = thisFun(:);
+        alpha(i) = abs(diff);
+        thisPos = layers(i,1) + thisPos;
+        lastLayerSLD = nextLayerSLD;
+    end
+    totalFuncs = allFuncs.* alpha;
+    total = sum(totalFuncs,2);
 else
-    x = 0:100;
-    subsBoxCen = max(x);
-    airBoxCen = 0;
-    widths = max(x);
-    airBox = asymconvstep(x,widths,airBoxCen,ssub,ssub,bulkIn);
-    subBox = asymconvstep(x,widths,subsBoxCen,ssub,ssub,bulkOut);
-    SLD = airBox + subBox;
+    % If we have no layers (i.e. just a bare interface), we only need one
+    % cdf...
+    z = 0:100;
+    pos = 50;
+    diff = bulkOut - bulkIn;
+    thisFun = cdf(z,pos,lastRough);
+    if diff < 1
+        thisFun = -thisFun;
+    end
+    total = thisFun * abs(diff);
 end
 
-SLDProfile = [x(:), SLD(:)];
+% Scale the SLD's back to Angstroms...
+total = (total + bulkIn) * 1e-6;
+SLD = [z(:) total(:)];
 
 end
