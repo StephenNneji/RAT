@@ -263,7 +263,8 @@ while tol > tolerance || j <= nLive
         if ~strcmpi(controls.display, coderEnums.displayOptions.Off)
             triggerEvent(coderEnums.eventTypes.Message, sprintf('Optimisation terminated by user\n'));
         end
-        break;
+        post_samples = [];
+        return;
     end
     % update counter    
     j = j+1;

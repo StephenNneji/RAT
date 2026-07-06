@@ -87,6 +87,12 @@ ParInfo.mvnpdf = true;
 % Run the sampler....
 [chain,dreamOutput,~] = DREAM(DREAMPar,ParInfo,ratInputs);
 
+if isRATStopped(controls.IPCFilePath)
+    result = makeEmptyResultStruct(problemStruct.numberOfContrasts, length(problemStruct.fitParams), domains);
+    outProblemStruct = problemStruct;
+    return
+end
+
 % Combine all chains....
 nChains = DREAMPar.nChains;
 nParams = DREAMPar.nParams;

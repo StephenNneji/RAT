@@ -222,7 +222,7 @@ for t = T_start : DREAMPar.nGenerations
         if ~strcmpi(controls.display, coderEnums.displayOptions.Off)
             triggerEvent(coderEnums.eventTypes.Message, sprintf('Optimisation terminated by user\n'));
         end
-        break;
+        return;
     end
 end
 

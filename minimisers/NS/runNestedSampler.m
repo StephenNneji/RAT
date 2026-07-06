@@ -49,6 +49,11 @@ data = {problemStruct; controls};
 [logZ, nestSamples, postSamples, H] = nestedSampler(data, nLive, nMCMC,...
     tolerance, likelihood, model, priorList, fitNames);
 
+if isRATStopped(controls.IPCFilePath)
+    result = makeEmptyResultStruct(problemStruct.numberOfContrasts, length(problemStruct.fitParams), domains);
+    return
+end
+
 % Process the results...
 nParams = length(fitNames);
 % chain = nest_samples(:,1:end-1);
