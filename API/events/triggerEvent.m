@@ -30,13 +30,15 @@ function triggerEvent(eventType, varargin)
             problemStruct = varargin{2};
             plotData.reflectivity = result.reflectivity;
             plotData.shiftedData = result.shiftedData;
-            plotData.sldProfiles = result.sldProfiles;
-            plotData.resampledLayers = result.resampledLayers;
             plotData.subRoughs = result.contrastParams.subRoughs;
             plotData.resample = problemStruct.resample;
             plotData.dataPresent = problemStruct.dataPresent;
             plotData.modelType = problemStruct.modelType;
             plotData.contrastNames = problemStruct.names.contrasts;
+            
+            [slds, resampledLayers, ~] = alignALProfiles(problemStruct.geometry, problemStruct.modelType, result.sldProfiles, result.resampledLayers, {});
+            plotData.sldProfiles = slds;
+            plotData.resampledLayers = resampledLayers;
              
             eventManager.notify(eventType, plotData);
         end
@@ -62,6 +64,10 @@ function triggerEvent(eventType, varargin)
             elseif eventType == coderEnums.eventTypes.Plot
                 result = varargin{1};
                 problemStruct = varargin{2};
+                [slds, resampledLayers, ~] = alignALProfiles(problemStruct.geometry, problemStruct.modelType, result.sldProfiles, result.resampledLayers, {});
+                result.sldProfiles = slds;
+                result.resampledLayers = resampledLayers;
+
                 subRoughs = result.contrastParams.subRoughs;
                 nContrast = length(result.reflectivity);
                 [reflect, nReflect] = packCellArray(result.reflectivity, 1);

@@ -50,10 +50,11 @@ fillAlpha = 0.3;
 
 controls = controlsClass();
 [projectStruct,~] = parseClassToStructs(project,controls);
+[sldProfiles, ~, pIntervals] = alignALProfiles(projectStruct.geometry, projectStruct.modelType, result.sldProfiles, result.resampledLayers, result.predictionIntervals.sld);
 
 % Get the reflectivities and SLDs
 reflectivityValues = result.predictionIntervals.reflectivity;
-sldValues = result.predictionIntervals.sld;
+sldValues = pIntervals;
 
 shiftedData = result.shiftedData;
 numberOfContrasts = length(shiftedData);
@@ -118,7 +119,7 @@ end
 subplot(1,2,2); hold on; box on
 xlabel('$\textrm{Z} (\AA)$','Interpreter','Latex')
 ylabel('$\textrm{SLD} (\AA^{-2})$','Interpreter','Latex')
-nColumns = size(result.sldProfiles, 2);
+nColumns = size(sldProfiles, 2);
 lines = cell(numberOfContrasts * nColumns, 1);
 names = cell(numberOfContrasts * nColumns, 1);
 
@@ -128,7 +129,7 @@ if ~isDomains
 
         sld = sldValues{i}(3,:);
         limits = sldValues{i};
-        sldXValues = result.sldProfiles{i}(:,1);
+        sldXValues = sldProfiles{i}(:,1);
 
         min = limits(vals(1),:);
         max = limits(vals(2),:);
@@ -145,7 +146,7 @@ else
 
         sld = sldValues(i,:);
         limits = sldValues(i,:);
-        sldXValues = result.sldProfiles(i,:);
+        sldXValues = sldProfiles(i,:);
 
         for j = 1:2
             min = limits{j}(vals(1),:);
