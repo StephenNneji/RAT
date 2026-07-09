@@ -27,7 +27,7 @@ totalVF = vfSilicon + vfOxide + vfLayer;
 vfWater = 1 - totalVF;
 
 % Now convert the Volume Fractions to SLD's...
-siSLD = vfSilicon * bulk_in;
+siSLD = vfSilicon * bulk_in(contrast);
 oxSLD = vfOxide * 3.41e-6;
 
 % Layer SLD depends on whether we are calculating the domain or not...

@@ -18,11 +18,11 @@ function [outputs1,outputs2,subRoughs] = processCustomFunction(bulkIns,bulkOuts,
         coder.varsize('output2',[10000 numberOfOutputColumns], [1 1]);
 
         if isnan(str2double(functionHandle))
-            [output1, subRoughs(i)] = callMatlabFunction(functionHandle, paramValues, bulkIns(i), bulkOuts, i, 1);
-            [output2, ~] = callMatlabFunction(functionHandle, paramValues, bulkIns(i), bulkOuts, i, 2);
+            [output1, subRoughs(i)] = callMatlabFunction(functionHandle, paramValues, bulkIns, bulkOuts, i, 1);
+            [output2, ~] = callMatlabFunction(functionHandle, paramValues, bulkIns, bulkOuts, i, 2);
         else
-            [output1, subRoughs(i)] = callCppFunction(functionHandle, paramValues, bulkIns(i), bulkOuts, i, 1);
-            [output2, ~] = callCppFunction(functionHandle, paramValues, bulkIns(i), bulkOuts, i, 2);
+            [output1, subRoughs(i)] = callCppFunction(functionHandle, paramValues, bulkIns, bulkOuts, i, 1);
+            [output2, ~] = callCppFunction(functionHandle, paramValues, bulkIns, bulkOuts, i, 2);
         end
 
         % If SLD is real, add dummy imaginary column
