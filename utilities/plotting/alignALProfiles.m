@@ -34,11 +34,9 @@ lengths = zeros(size(sldProfiles));
 for i = 1:numel(sldProfiles)
     lengths(i) = size(sldProfiles{i}, 1);
 end
-% Get max length and its index
-[maxLen, maxPos] = max(lengths);
-maxPos = maxPos(1);
-maxLen  = maxLen (1);
 
+% Get max length and its index
+[maxLen, maxPos] = max(lengths, [], "all");
 maxXValue = sldProfiles{maxPos}(end,1);
 
 % Get the longest profile...
