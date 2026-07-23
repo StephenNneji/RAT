@@ -66,6 +66,12 @@ function [project,result] = RAT(project,controls)
 % Call the main RAT routine...
 display = ~strcmpi(controls.display, displayOptions.Off.value);
 textProgressBar(0, 0, display);
+printFunc = @(x) fprintf("%s", x);
+progressFunc = @(x) textProgressBar(x{1}, x{2});
+
+eventManager.register(eventTypes.Message, printFunc);
+eventManager.register(eventTypes.Progress, progressFunc);
+
 % If display is not silent print a line confirming RAT is starting
 if display
     fprintf('Starting RAT ______________________________________________________________________________________________\n\n');
@@ -78,6 +84,9 @@ if display
     toc
 end
 textProgressBar(0, 0, true);
+eventManager.unregister(eventTypes.Message, printFunc);
+eventManager.unregister(eventTypes.Progress, progressFunc);
+
 if any(strcmpi(controls.procedure, {procedures.NS.value, procedures.Dream.value}))
     result = mergeStructs(result, bayesResults);
 end

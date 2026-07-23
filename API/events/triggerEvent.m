@@ -22,9 +22,9 @@ function triggerEvent(eventType, varargin)
     coder.extrinsic('eventManager.notify')
     if coder.target('MATLAB') || coder.target('MEX')
         if eventType == coderEnums.eventTypes.Message
-            fprintf("%s", varargin{1});
+            eventManager.notify(eventType, varargin{1});
         elseif eventType == coderEnums.eventTypes.Progress
-            textProgressBar(varargin{1}, varargin{2});
+            eventManager.notify(eventType, varargin)
         elseif eventType == coderEnums.eventTypes.Plot
             result = varargin{1};
             problemStruct = varargin{2};
