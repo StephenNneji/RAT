@@ -53,8 +53,8 @@ problem.addBulkOut('SMW', 1e-06, 2.21e-06, 4.99e-06, true);
 
 % Set the scalefactors - use one for each contrast
 problem.removeScalefactor(1);
-problem.addScalefactor('Scalefactor 1', 0.05, 0.10, 0.2, false);
-problem.addScalefactor('Scalefactor 2', 0.05, 0.15, 0.2, false);
+problem.addScalefactor('Scalefactor 1', 0.05, 0.10, 0.2, true);
+problem.addScalefactor('Scalefactor 2', 0.05, 0.15, 0.2, true);
 
 % Now deal with the backgrounds....
 problem.removeBackgroundParam(1);
