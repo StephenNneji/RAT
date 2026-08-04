@@ -15,7 +15,7 @@ paramGroup = {
               {'Sam tails hydration',   1,      5.253,      50,     true,   'uniform',      0,  Inf};
               {'Sam rough',             1,      5.64,       15,     true,   'uniform',      0,  Inf};
               {'cw thick',              10,     17.12,      28,     true,   'uniform',      0,  Inf};
-              {'cw SLD',                0,      0,          1e-09,  false,  'uniform',      0,  Inf};
+              {'cw SLD',                0,      0,          0,      false,  'uniform',      0,  Inf};
               {'SAM head thick',        5,      8.56,       17,     true,   'gaussian',    10,    2};
               {'SAM head SLD',          1e-07,  1.75e-06,   2e-06,  false,  'uniform',      0,  Inf};
               {'SAM head hydration',    10,     45.45,      50,     true,   'uniform',      0,  Inf};

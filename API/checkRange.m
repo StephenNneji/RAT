@@ -23,10 +23,14 @@ function problemStruct = checkRange(problemStruct, limits)
         for j = 1:length(fitIndices)
             lower = limits.(fields{i})(fitIndices(j),1);
             upper = limits.(fields{i})(fitIndices(j),2);
-            
-            if (upper - lower) < 1e-10
+            minRange = abs(problemStruct.(fields{i})(fitIndices(j))) * 1e-6;
+            if minRange == 0
+                minRange = 1e-6;
+            end
+
+            if (upper - lower) < minRange
                 paramName = problemStruct.names.(fields{i}){fitIndices(j)};
-                warning('%s "%s" was removed from the fit because its range is too small (< 1e-10).', titles{i}, paramName);
+                warning('%s "%s" was removed from the fit because its range is too small (< %g).', titles{i}, paramName, minRange);
                 problemStruct.checks.(fields{i})(fitIndices(j)) = 0;
             end
         end
