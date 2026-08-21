@@ -27,8 +27,6 @@ switch display
         dis = 'none';
     case coderEnums.displayOptions.Iter
         dis = 'iter';
-    case coderEnums.displayOptions.Notify
-        dis = 'notify';
     case coderEnums.displayOptions.Final
         dis = 'final';
     otherwise

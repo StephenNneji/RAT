@@ -44,7 +44,7 @@ function [x,fval,exitflag,output] = fMinSearch(funfcn,x,options,dis,varargin)
 %
 msg = 'ok';
 
-defaultopt = struct('Display','notify','MaxIter','200*numberOfVariables',...
+defaultopt = struct('Display','iter','MaxIter','200*numberOfVariables',...
     'MaxFunEvals','200*numberOfVariables','TolX',1e-4,'TolFun',1e-4, ...
     'FunValCheck','off','OutputFcn',[],'PlotFcns',[]);
 
@@ -65,8 +65,6 @@ maxfun = optimget(options,'MaxFunEvals',defaultopt,'fast');
 maxiter = optimget(options,'MaxIter',defaultopt,'fast');
 
 switch dis      % Changed from TMW fminsearch
-    case {'notify','notify-detailed'}
-        prnt = 1;
     case {'none','off'}
         prnt = 0;
     case {'iter','iter-detailed'}
