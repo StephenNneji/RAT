@@ -71,8 +71,6 @@ switch dis      % Changed from TMW fminsearch
         prnt = 2;
     case {'final','final-detailed'}
         prnt = 1;
-%     case 'simplex'
-%         prnt = 4;
     otherwise
         prnt = 2;
 end
@@ -134,8 +132,6 @@ if prnt == 2
     triggerEvent(coderEnums.eventTypes.Message, sprintf('\n%s\n', header));
     triggerEvent(coderEnums.eventTypes.Message, ...
                  sprintf(' %5.0f        %5.0f     %12.6g         %s\n', itercount, func_evals, fv(1), how));
-% elseif prnt == 4
-    % Option never used in RAT
     
     
 %     formatsave.format = get(0,'format');
@@ -201,15 +197,6 @@ func_evals = n+1;
 if prnt == 2 && rem(itercount, controls.updateFreq) == 0
     triggerEvent(coderEnums.eventTypes.Message, ...
                  sprintf(' %5.0f        %5.0f     %12.6g         %s\n', itercount, func_evals, fv(1), how));
-% elseif prnt == 4
-%     fprintf('%s \n', ' ')
-%     fprintf('%s \n', how)
-%     fprintf('%s \n', 'v = ')
-%     fprintf('%g \n', v)
-%     fprintf('%s \n', 'fv = ')
-%     fprintf('%g \n', fv)
-%     fprintf('%s \n', 'func_evals = ')
-%     fprintf('%g \n', func_evals)
 end
 if doPlotEvent && rem(itercount, controls.updatePlotFreq) == 0
     triggerEvent(coderEnums.eventTypes.Plot, result, problemStruct);
@@ -324,15 +311,6 @@ while func_evals < maxfun && itercount < maxiter
     itercount = itercount + 1;
     if prnt == 2 && rem(itercount, controls.updateFreq) == 0
         triggerEvent(coderEnums.eventTypes.Message, sprintf(' %5.0f        %5.0f     %12.6g         %s\n', itercount, func_evals, fv(1), how));
-%     elseif prnt == 4
-%         fprintf('%s \n', ' ')
-%         fprintf('%s \n', num2str(how))
-%         fprintf('%s \n', 'v = ')
-%         fprintf('%s \n', v)
-%         fprintf('%s \n', 'fv = ')
-%         fprintf('%s \n', fv)
-%         fprintf('%s \n', 'func_evals = ')
-%         fprintf('%s \n', num2str(func_evals))
     end
     controls.calcSLD = false;
     if doPlotEvent && rem(itercount, controls.updatePlotFreq) == 0   
