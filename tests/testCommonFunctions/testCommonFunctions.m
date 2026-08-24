@@ -45,17 +45,8 @@ classdef testCommonFunctions < matlab.unittest.TestCase
         SLDFunctionInputs;
         SLDFunctionOutputs;
 
-        dataResolutionPollyParallelPointsInputs;
-        dataResolutionPollyParallelPointsOutputs;
-        
-        dataResolutionPollyInputs;
-        dataResolutionPollyOutputs;
-        
-        resolutionPollyParallelPointsInputs;
-        resolutionPollyParallelPointsOutputs;
-        
-        resolutionPollyInputs;
-        resolutionPollyOutputs;
+        gaussianConvInputs
+        gaussianConvOutputs
         
         tolerance = 1.0e-12;     % Relative tolerance for equality of floats
         abs_tolerance = 1.0e-5;  % Absolute tolerance for equality of floats
@@ -185,14 +176,14 @@ classdef testCommonFunctions < matlab.unittest.TestCase
             testCase.SLDFunctionInputs = inputs.inputs;
             testCase.SLDFunctionOutputs = outputs.outputs;
         end
-
-        function loadResolutionPolly(testCase)
-            inputs = load('resolutionPollyInputs.mat');
-            outputs = load('resolutionPollyOutputs.mat');
-            testCase.resolutionPollyInputs = inputs.inputs;
-            testCase.resolutionPollyOutputs = outputs.outputs;
-        end 
         
+        function loadGaussianConv(testCase)
+            inputs = load('gaussianConvInputs.mat');
+            outputs = load('gaussianConvOutputs.mat');
+            testCase.gaussianConvInputs = inputs.inputs;
+            testCase.gaussianConvOutputs = outputs.outputs;
+        end 
+
     end
 
 %%
@@ -300,12 +291,11 @@ classdef testCommonFunctions < matlab.unittest.TestCase
 
         end
 
-        function testResolutionPolly(testCase)
-            out1 = resolutionPolly(testCase.resolutionPollyInputs{1:end});
+        function testGaussianConv(testCase)
+            out1 = gaussianConvolution(testCase.gaussianConvInputs{1:end});
             outputs = {out1};
-            testCase.verifyEqual(testCase.resolutionPollyOutputs,outputs, 'RelTol', testCase.tolerance, 'AbsTol', testCase.abs_tolerance);
-
-        end        
+            testCase.verifyEqual(testCase.gaussianConvOutputs,outputs, 'RelTol', testCase.tolerance, 'AbsTol', testCase.abs_tolerance);
+        end  
 
     end
 end

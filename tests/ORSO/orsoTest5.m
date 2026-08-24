@@ -1,5 +1,5 @@
 function out = orsoTest5()
-% ORSO validation Test4 - Reflectivity plus resolution...
+% ORSO validation Test5 - Reflectivity plus resolution...
 
 layers = dlmread('test1.layers');
 
@@ -16,15 +16,18 @@ sld = complex(layers(:,2),layers(:,3));
 rough = layers(:,4);
 
 % Calculate reflectivity....
-q = data(:,1);
+[~,argmin] = min(data(:, 1));
+[~, argmax] = max(data(:, 1));
+q = linspace(data(argmin, 1) - 3.5 * data(argmin, 4),...
+             data(argmax, 1) + 3.5 * data(argmax, 4),...
+             10001);
 N = size(layers,1);
 ref = abelesSingle(q,N,thick,sld,rough);
 
 % Apply resolution....
 FWHM = 2 * sqrt(2 * log(2)); % FWHM for Gaussian function
-resol = 0.05 / FWHM;
-ref = resolutionPolly(q,ref,resol,length(q));
-%ref = smeared_abeles_constant(q,ref,resol);
+resol =  (0.05 / FWHM) .* q;
+ref = gaussianConvolution(q, ref, q, resol);
 
 % Plot the comparison....
 figure(1); clf
@@ -33,5 +36,5 @@ hold on
 plot(data(:,1),data(:,2),'r.')
 
 % Calculate the output....
-out = sum(sum((data(:,2) - ref).^2));
-
+ref = interp1(q, ref, data(:, 1));
+out = allClose(ref, data(:, 2), rtol=0.033);

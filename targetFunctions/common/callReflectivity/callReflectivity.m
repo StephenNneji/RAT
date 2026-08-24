@@ -54,7 +54,8 @@ switch refType
         end
 
         % Apply resolution correction
-        simulation(:,2) = resolutionPolly(simulationXData,simRef,resolution(:,2),length(simulationXData));
+        resol = resolution(:,2) .* simulationXData;
+        simulation(:,2) = gaussianConvolution(simulationXData, simRef, simulationXData, resol);
 
     otherwise
         coderException(coderEnums.errorCodes.invalidOption, 'The reflectivity type "%s" is not supported', refType);
