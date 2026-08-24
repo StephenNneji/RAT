@@ -68,13 +68,13 @@ switch dis      % Changed from TMW fminsearch
     case {'none','off'}
         prnt = 0;
     case {'iter','iter-detailed'}
-        prnt = 3;
-    case {'final','final-detailed'}
         prnt = 2;
+    case {'final','final-detailed'}
+        prnt = 1;
 %     case 'simplex'
 %         prnt = 4;
     otherwise
-        prnt = 1;
+        prnt = 2;
 end
 
 header = ' Iteration   Func-count     min f(x)         Procedure';
@@ -130,7 +130,7 @@ how = '';
 % end
 
 % Print out initial f(x) as 0th iteration
-if prnt == 3
+if prnt == 2
     triggerEvent(coderEnums.eventTypes.Message, sprintf('\n%s\n', header));
     triggerEvent(coderEnums.eventTypes.Message, ...
                  sprintf(' %5.0f        %5.0f     %12.6g         %s\n', itercount, func_evals, fv(1), how));
@@ -198,7 +198,7 @@ v = v(:,j);
 how = 'initial simplex';
 itercount = itercount + 1;
 func_evals = n+1;
-if prnt == 3 && rem(itercount, controls.updateFreq) == 0
+if prnt == 2 && rem(itercount, controls.updateFreq) == 0
     triggerEvent(coderEnums.eventTypes.Message, ...
                  sprintf(' %5.0f        %5.0f     %12.6g         %s\n', itercount, func_evals, fv(1), how));
 % elseif prnt == 4
@@ -322,7 +322,7 @@ while func_evals < maxfun && itercount < maxiter
     [fv,j] = sort(fv);
     v = v(:,j);
     itercount = itercount + 1;
-    if prnt == 3 && rem(itercount, controls.updateFreq) == 0
+    if prnt == 2 && rem(itercount, controls.updateFreq) == 0
         triggerEvent(coderEnums.eventTypes.Message, sprintf(' %5.0f        %5.0f     %12.6g         %s\n', itercount, func_evals, fv(1), how));
 %     elseif prnt == 4
 %         fprintf('%s \n', ' ')
@@ -359,7 +359,7 @@ end   % while
 x(:) = v(:,1);
 fval = fv(:,1);
 
-if prnt == 3 && rem(itercount, controls.updateFreq) ~= 0
+if prnt == 2 && rem(itercount, controls.updateFreq) ~= 0
     % This should ensure the final result is printed at the end of a run irrespective of update frequency
     triggerEvent(coderEnums.eventTypes.Message, sprintf(' %5.0f        %5.0f     %12.6g         %s\n', itercount, func_evals, fv(1), how));
 end
@@ -388,7 +388,7 @@ elseif itercount >= maxiter
     end
     exitflag = 0;
 else
-    printMsg = prnt > 1;
+    printMsg = prnt > 0;
     if buildOutputStruct || printMsg
         msg = sprintf('Exiting - X satisfies termination criteria: TolX %e, TolF %e',tolx,tolf);
 
