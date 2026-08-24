@@ -108,65 +108,16 @@ coder.varsize('how',[1 Inf],[0 1]);
 how = '';
 % Initial simplex setup continues later
 
-% Initialize the output and plot functions.
-%
-% ----------------------------------------
-% RAT doesn't use output or plot functions...
-%
-% --------------------- AVH -----------
-
-% if haveoutputfcn || haveplotfcn
-%     [xOutputfcn, optimValues, stop] = callOutputAndPlotFcns(outputfcn,plotfcns,v(:,1),xOutputfcn,'init',itercount, ...
-%         func_evals, how, fv(:,1),varargin{:});
-%     if stop
-%         [x,fval,exitflag,output] = cleanUpInterrupt(xOutputfcn,optimValues);
-%         if  prnt > 0
-%             fprintf('%s \n', output.message)
-%         end
-%         return;
-%     end
-% end
-
 % Print out initial f(x) as 0th iteration
 if prnt == 2
     triggerEvent(coderEnums.eventTypes.Message, sprintf('\n%s\n', header));
     triggerEvent(coderEnums.eventTypes.Message, ...
                  sprintf(' %5.0f        %5.0f     %12.6g         %s\n', itercount, func_evals, fv(1), how));
-    
-    
-%     formatsave.format = get(0,'format');
-%     formatsave.formatspacing = get(0,'formatspacing');
-%     % reset format when done
-%     oc1 = onCleanup(@()set(0,'format',formatsave.format));
-%     oc2 = onCleanup(@()set(0,'formatspacing',formatsave.formatspacing));
-%     format compact
-%     format short e
-%     fprintf('%s \n', ' ')
-%     fprintf('%s \n', how)
-%     fprintf('%s \n', 'v = ')
-%     fprintf('%g \n', v)
-%     fprintf('%s \n', 'fv = ')
-%     fprintf('%g \n', fv)
-%     fprintf('%s \n', 'func_evals = ')
-%     fprintf('%g \n', func_evals)
 end
 
 if doPlotEvent 
     triggerEvent(coderEnums.eventTypes.Plot, result, problemStruct);
 end
-
-% OutputFcn and PlotFcns call
-% if haveoutputfcn || haveplotfcn
-%     [xOutputfcn, optimValues, stop] = callOutputAndPlotFcns(outputfcn,plotfcns,v(:,1),xOutputfcn,'iter',itercount, ...
-%         func_evals, how, fv(:,1),varargin{:});
-%     if stop  % Stop per user request.
-%         [x,fval,exitflag,output] = cleanUpInterrupt(xOutputfcn,optimValues);
-%         if  prnt > 0
-%             fprintf('%s \n', output.message)
-%         end
-%         return;
-%     end
-% end
 
 % Continue setting up the initial simplex.
 % Following improvement suggested by L.Pfeffer at Stanford
@@ -205,19 +156,6 @@ if isRATStopped(controls.IPCFilePath)
     [x, fval, exitflag, output] = cleanUpInterrupt(v(:,1), fv(:,1), itercount, func_evals, prnt);
     return
 end
-% OutputFcn and PlotFcns call
-% if haveoutputfcn || haveplotfcn
-%     [xOutputfcn, optimValues, stop] = callOutputAndPlotFcns(outputfcn,plotfcns,v(:,1),xOutputfcn,'iter',itercount, ...
-%         func_evals, how, fv(:,1),varargin{:});
-%     if stop  % Stop per user request.
-%         [x,fval,exitflag,output] = cleanUpInterrupt(xOutputfcn,optimValues);
-%         if  prnt > 0
-%             fprintf('%s \n', output.message)
-%         end
-%         return;
-%     end
-% end
-% exitflag = 1;
 
 % Main algorithm: iterate until 
 % (a) the maximum coordinate difference between the current best point and the 
@@ -320,18 +258,6 @@ while func_evals < maxfun && itercount < maxiter
         [x, fval, exitflag, output] = cleanUpInterrupt(v(:,1), fv(:,1), itercount, func_evals, prnt);
         return
     end
-    % OutputFcn and PlotFcns call
-%     if haveoutputfcn || haveplotfcn
-%         [xOutputfcn, optimValues, stop] = callOutputAndPlotFcns(outputfcn,plotfcns,v(:,1),xOutputfcn,'iter',itercount, ...
-%             func_evals, how, fv(:,1),varargin{:});
-%         if stop  % Stop per user request.
-%             [x,fval,exitflag,output] = cleanUpInterrupt(xOutputfcn,optimValues);
-%             if  prnt > 0
-%                 fprintf('%s \n', output.message)
-%             end
-%             return;
-%         end
-%     end
 end   % while
 
 x(:) = v(:,1);
@@ -345,11 +271,6 @@ if doPlotEvent && rem(itercount, controls.updatePlotFreq) ~= 0
     % This should ensure the final result is always plotted irrespective of update frequency
    triggerEvent(coderEnums.eventTypes.Plot, result, problemStruct);
 end
-
-% OutputFcn and PlotFcns call
-% if haveoutputfcn || haveplotfcn
-%     callOutputAndPlotFcns(outputfcn,plotfcns,x,xOutputfcn,'done',itercount, func_evals, how, fval, varargin{:});
-% end
 
 if func_evals >= maxfun
     printMsg = prnt > 0;
@@ -385,45 +306,6 @@ if printMsg
     triggerEvent(coderEnums.eventTypes.Message, sprintf('\n%s\n', msg));
 end
 end
-%--------------------------------------------------------------------------
-% function [xOutputfcn, optimValues, stop] = callOutputAndPlotFcns(outputfcn,plotfcns,x,xOutputfcn,state,iter,...
-%     numf,how,f,varargin)
-% CALLOUTPUTANDPLOTFCNS assigns values to the struct OptimValues and then calls the
-% outputfcn/plotfcns.
-%
-% state - can have the values 'init','iter', or 'done'.
-
-% For the 'done' state we do not check the value of 'stop' because the
-% optimization is already done.
-% optimValues.iteration = iter;
-% optimValues.funccount = numf;
-% optimValues.fval = f;
-% optimValues.procedure = how;
-
-% xOutputfcn(:) = x;  % Set x to have user expected size
-% stop = false;
-% state = char(state);
-% Call output functions
-
-% ---- Remove these from function for compile - AVH
-% if ~isempty(outputfcn)
-%     switch state
-%         case {'iter','init'}
-%             stop = callAllOptimOutputFcns(outputfcn,xOutputfcn,optimValues,state,varargin{:}) || stop;
-%         case 'done'
-%             callAllOptimOutputFcns(outputfcn,xOutputfcn,optimValues,state,varargin{:});
-%     end
-% end
-% % Call plot functions
-% if ~isempty(plotfcns)
-%     switch state
-%         case {'iter','init'}
-%             stop = callAllOptimPlotFcns(plotfcns,xOutputfcn,optimValues,state,varargin{:}) || stop;
-%         case 'done'
-%             callAllOptimPlotFcns(plotfcns,xOutputfcn,optimValues,state,varargin{:});
-%     end
-% end
-% -----------------------------------
 
 %--------------------------------------------------------------------------
 function [x, fval, exitflag, output] = cleanUpInterrupt(optX, optVal, iteration, funccount, display)
@@ -438,37 +320,3 @@ function [x, fval, exitflag, output] = cleanUpInterrupt(optX, optVal, iteration,
         triggerEvent(coderEnums.eventTypes.Message, sprintf('\n%s\n', output.message));
     end
 end
-
-%--------------------------------------------------------------------------
-% function f = checkfun(x,userfcn,varargin)
-% CHECKFUN checks for complex or NaN results from userfcn.
-
-% f = userfcn(x,varargin{:});
-% Note: we do not check for Inf as FMINSEARCH handles it naturally.
-% if isnan(f)
-%     error('MATLAB:fminsearch:checkfun:NaNFval','Target function is NaN');
-% elseif ~isreal(f)
-%     error('MATLAB:fminsearch:checkfun:ComplexFval',...
-%         getString(message('MATLAB:optimfun:fminsearch:checkfun:ComplexFval', localChar( userfcn ))));  
-%         error(sprintf('Target function is complex'));
-% end
-
-%--------------------------------------------------------------------------
-% function strfcn = localChar(fcn)
-% % Convert the fcn to a character array for printing
-% 
-% if ischar(fcn)
-%     strfcn = fcn;
-% elseif isstring(fcn) || isa(fcn,'inline')
-%     strfcn = char(fcn);
-% elseif isa(fcn,'function_handle')
-%     strfcn = func2str(fcn);
-% else
-%     try
-%         strfcn = char(fcn);
-%     catch
-%         strfcn = getString(message('MATLAB:optimfun:fminsearch:NameNotPrintable'));
-%     end
-% end
-
-
