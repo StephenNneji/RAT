@@ -17,7 +17,6 @@ classdef displayOptions < customEnum
     enumeration
         Off ('off')
         Iter ('iter')
-        Notify ('notify')
         Final ('final')
     end
 end

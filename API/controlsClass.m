@@ -38,7 +38,7 @@ classdef controlsClass < handle & matlab.mixin.CustomDisplay
     % resampleNPoints : whole number, default: 50
     %     The number of initial points to use for resampling.
     % display : displayOptions, default: displayOptions.Iter
-    %     How much RAT should print to the terminal. Can be 'off', 'iter', 'notify', or 'final'.
+    %     How much RAT should print to the terminal. Can be 'off', 'iter', or 'final'.
     % updateFreq : whole number, default: 1
     %     [SIMPLEX, DE] Number of iterations between printing progress updates to the terminal.
     % updatePlotFreq : whole number, default: 20
